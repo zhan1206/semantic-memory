@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[all]"
+
+      - name: Run tests (core)
+        run: |
+          pytest tests/test_config.py tests/test_sensitive_filter.py -v
+
+  test-integration:
+    name: Integration (Python ${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11"]
+    if: false  # 集成测试需要真实模型，CI 中跳过；本地运行
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Download ONNX model
+        run: |
+          python -c "import os, sys; sys.path.insert(0, 'scripts'); from core import _ensure_model; _ensure_model('all-MiniLM-L6-v2')"
+
+      - name: Run integration tests
+        run: |
+          pytest tests/test_vector_store.py tests/test_memory_manager.py -v
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lint tools
+        run: pip install ruff black mypy
+
+      - name: Check ruff
+        run: ruff check scripts/
+
+      - name: Check black
+        run: black --check scripts/ tests/
+
+      - name: Check mypy
+        run: mypy scripts/ --ignore-missing-imports
+
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    if: false  # 需要先通过测试再启用
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install + run
+        run: |
+          pip install -e ".[all]"
+          pytest tests/ -v --cov=scripts --cov-report=xml --cov-report=html
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml

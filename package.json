@@ -1,0 +1,50 @@
+{
+  "name": "semantic-memory",
+  "version": "1.0.0",
+  "description": "OpenClaw 本地记忆与语义检索系统 — 100% 离线、隐私优先、零配置",
+  "main": "scripts/run.py",
+  "scripts": {
+    "install-deps": "python scripts/installer.py",
+    "add": "python scripts/run.py add",
+    "search": "python scripts/run.py search",
+    "list": "python scripts/run.py list",
+    "stats": "python scripts/run.py stats",
+    "test": "python scripts/run.py stats"
+  },
+  "keywords": [
+    "openclaw",
+    "semantic-memory",
+    "embedding",
+    "faiss",
+    "onnx",
+    "local-ai",
+    "privacy",
+    "offline",
+    "vector-search",
+    "rag"
+  ],
+  "author": "zhan1206",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhan1206/semantic-memory.git"
+  },
+  "engines": {
+    "python": ">=3.10"
+  },
+  "dependencies": {},
+  "pythonDependencies": {
+    "core": [
+      "onnxruntime>=1.17.0",
+      "tokenizers>=0.19.0",
+      "faiss-cpu>=1.7.4",
+      "numpy>=1.24.0,<2",
+      "chardet>=5.0"
+    ],
+    "optional": [
+      "PyPDF2>=3.0",
+      "python-docx>=1.0",
+      "cryptography>=42.0"
+    ]
+  }
+}
