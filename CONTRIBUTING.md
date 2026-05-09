@@ -1,178 +1,233 @@
-# Contributing to Semantic Memory
+# 🤝 贡献指南
 
-感谢您对 Semantic Memory 项目的兴趣！欢迎提交 Issue 和 Pull Request。
+感谢您对 Semantic Memory 的关注与贡献！
 
-## 开发环境
-
-### 1. 克隆项目
+## 开发环境设置
 
 ```bash
+# 1. 克隆仓库
 git clone https://github.com/zhan1206/semantic-memory.git
 cd semantic-memory
-```
 
-### 2. 创建虚拟环境
-
-```bash
+# 2. 创建虚拟环境
 python -m venv .venv
 source .venv/bin/activate        # Linux/macOS
-# 或
-.venv\Scripts\Activate.ps1       # Windows PowerShell
-```
+.venv\Scripts\activate          # Windows
 
-### 3. 安装依赖
+# 3. 安装依赖
+pip install -e ".[dev,docs]"
 
-```bash
-# 开发依赖（包含测试、FastAPI、文档解析等全部可选功能）
-pip install -e ".[all]"
-
-# 仅核心功能
-pip install -r requirements.txt
-```
-
-### 4. 运行测试
-
-```bash
-# 全部测试
-pytest tests/ -v
-
-# 带覆盖率
-pytest tests/ -v --cov=scripts --cov-report=html --cov-report=term
-
-# 单个测试文件
-pytest tests/test_memory_manager.py -v
-
-# 仅快速测试（跳过向量检索等耗时测试）
-pytest tests/ -v -m "not slow"
-```
-
-## 项目结构
-
-```
-scripts/
-├── core.py           # ONNX 引擎 — 修改此处需同步更新 tests/test_core.py
-├── vector_store.py   # FAISS 存储 — 修改此处需同步更新 tests/test_vector_store.py
-├── memory_manager.py # 业务逻辑 — 修改此处需同步更新 tests/test_memory_manager.py
-├── sensitive_filter.py# 脱敏规则 — 修改此处需同步更新 tests/test_sensitive_filter.py
-├── doc_parser.py     # 文档解析 — 修改此处需同步更新 tests/test_doc_parser.py
-├── config.py         # 配置管理 — 修改此处需同步更新 tests/test_config.py
-├── run.py            # CLI 入口
-├── api_server.py     # FastAPI 服务
-└── logging.py        # 日志模块
+# 4. 运行测试（验证环境）
+pytest tests/ -v --tb=short
 ```
 
 ## 代码规范
 
-### Python
+### Python 风格
 
-- 遵循 **PEP 8**，行长度 ≤ 88 字符（Black 默认）
-- 所有新模块需包含 docstring
-- 公开 API 需写 type hints
-- 中文注释优先（项目文档），英文注释次之（复杂逻辑说明）
+遵循 **PEP 8**，使用 **Black** 格式化：
 
-### 测试规范
+```bash
+# 安装格式工具
+pip install black isort flake8
 
-- 所有 `scripts/` 模块应有对应 `tests/test_<module>.py`
-- 测试使用 pytest fixture 管理临时数据目录
-- Mock ONNX 模型避免测试依赖真实模型文件
-- 测试文件名: `test_<module_name>.py`
-- 测试函数名: `test_<method>_<scenario>`
+# 格式化代码
+black scripts/ tests/
 
-### 提交规范
+# 导入排序
+isort scripts/ tests/
 
-提交信息格式（参考 [Conventional Commits](https://www.conventionalcommits.org/)）:
+# 代码检查
+flake8 scripts/ tests/ --max-line-length=100 --ignore=E501,W503
+```
+
+### 命名规范
+
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| 模块/文件 | 小写下划线 | `doc_parser.py` |
+| 类 | 大驼峰 | `MemoryManager` |
+| 函数/方法 | 小写下划线 | `batch_add_memories` |
+| 常量 | 大写下划线 | `MAX_CHUNK_SIZE` |
+| 类型变量 | 大驼峰 | `T = TypeVar("T")` |
+
+### 文档字符串
+
+所有公开函数/类需有文档字符串：
+
+```python
+def search(
+    query: str,
+    top_k: int = 5,
+    tag: str = None,
+) -> list[dict]:
+    """
+    语义搜索记忆
+
+    Args:
+        query: 自然语言查询
+        top_k: 返回结果数量
+        tag: 标签过滤（可选）
+
+    Returns:
+        匹配的记忆列表，每项含 id/text/score/tags/importance
+
+    Raises:
+        ValueError: query 为空时抛出
+
+    Example:
+        >>> mgr = MemoryManager()
+        >>> results = mgr.search("张三说了什么", top_k=3)
+        >>> print(results[0]["text"])
+    """
+    ...
+```
+
+## 测试规范
+
+### 测试结构
+
+```python
+# tests/test_memory_manager.py
+import pytest
+from scripts.memory_manager import MemoryManager
+
+
+class TestMemoryAdd:
+    """MemoryManager.add() 的测试"""
+
+    def test_add_basic(self, clean_data_dir):
+        """基本添加功能"""
+        mgr = MemoryManager(data_dir=clean_data_dir)
+        mem_id = mgr.add("测试记忆", importance=0.5)
+        assert mem_id is not None
+        assert len(mem_id) > 0
+
+    def test_add_empty_text_raises(self, clean_data_dir):
+        """空文本应抛出 ValueError"""
+        mgr = MemoryManager(data_dir=clean_data_dir)
+        with pytest.raises(ValueError, match="empty"):
+            mgr.add("")
+
+    def test_add_with_tags(self, clean_data_dir):
+        """带标签添加"""
+        mgr = MemoryManager(data_dir=clean_data_dir)
+        mem_id = mgr.add("工作内容", tags=["工作", "重要"])
+        assert mem_id is not None
+```
+
+### Fixtures 说明
+
+`conftest.py` 提供以下 fixtures：
+
+| Fixture | 说明 |
+|---------|------|
+| `mock_data_dir` | Session 级临时目录（所有测试共享） |
+| `clean_data_dir` | 函数级干净临时目录 |
+| `patch_data_dir` | 自动将 DATA_DIR 指向测试目录 |
+| `sample_texts` | 标准测试文本集（中文/英文/模拟敏感信息） |
+| `mock_encoder` | 确定性 Mock 向量引擎（维度 384） |
+
+### Mock Encoder 使用
+
+```python
+def test_search_with_mock(memory_manager, mock_encoder):
+    """使用 Mock 引擎测试搜索"""
+    mgr = memory_manager
+    mgr._encoder = mock_encoder  # 替换为 Mock
+    mgr.add("测试文本")
+    results = mgr.search("测试", top_k=1)
+    assert len(results) == 1
+```
+
+## Git 提交规范
+
+采用 [Conventional Commits](https://www.conventionalcommits.org/)：
 
 ```
-<type>(<scope>): <description>
+<type>(<scope>): <subject>
 
 [optional body]
 
 [optional footer]
 ```
 
-类型:
-- `feat`: 新功能
-- `fix`: 错误修复
-- `docs`: 文档更新
-- `test`: 测试相关
-- `refactor`: 重构
-- `perf`: 性能优化
-- `chore`: 构建/工具变更
+类型：
 
-示例:
-```
-feat(memory_manager): add batch_add for bulk memory insertion
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| `feat` | 新功能 | `feat(kb): add XLSX parsing support` |
+| `fix` | Bug 修复 | `fix(search): correct score calculation` |
+| `docs` | 文档 | `docs: update README installation` |
+| `test` | 测试 | `test(batch): add batch import tests` |
+| `refactor` | 重构 | `refactor(core): extract encoder class` |
+| `perf` | 性能 | `perf(vector): use batch encode` |
+| `chore` | 维护 | `chore: bump pytest version` |
 
-Closes #12
-```
-
-## 新功能流程
-
-1. **讨论**: 先开 Issue 描述需求，获得认可后再实现
-2. **分支**: 从 `main` 创建功能分支 `feature/xxx` 或 `fix/xxx`
-3. **测试**: 新功能必须有对应测试，覆盖率不下降
-4. **文档**: 更新 README.md、references/、SKILL.md（如有必要）
-5. **PR**: 描述清楚改动内容、原因、测试结果
-
-## API 开发
-
-### FastAPI 服务开发
+示例：
 
 ```bash
-# 开发模式（热重载）
-python scripts/api_server.py --reload --log-level debug
+git commit -m "feat(doc_parser): add PDF table extraction
 
-# 测试 API
-curl http://localhost:8765/health
-curl http://localhost:8765/docs  # Swagger UI
+- Detect table-like structures from PDF text
+- Convert to Markdown table format
+- Handle merged cells in DOCX tables
+
+Closes #12"
 ```
 
-### API 变更
+## Pull Request 流程
 
-- 所有新端点需在 `api_server.py` 中有对应 Pydantic 模型
-- 变更 API 需更新 API 版本（如 `/v1/...`）
-- 破坏性变更需递增主版本号
+1. **Fork** 并创建特性分支
+   ```bash
+   git checkout -b feature/pdf-table-extraction
+   ```
 
-## 发布流程
+2. **编写代码 + 测试**
 
-1. 更新 `pyproject.toml` 中的版本号
-2. 更新 `CHANGELOG.md`
-3. 创建 GitHub Release
-4. GitHub Actions 自动发布到 PyPI（如配置了）
+3. **确保测试通过**
+   ```bash
+   pytest tests/ -v --tb=short
+   ```
 
-## 问题排查
+4. **提交并推送**
+   ```bash
+   git push origin feature/pdf-table-extraction
+   ```
 
-### 模型下载失败
+5. **创建 Pull Request**，描述：
+   - 改动内容
+   - 解决的问题
+   - 测试方式
+   - 截图/截图（如有 UI 改动）
 
-```bash
-# 手动下载
-python -c "
-from scripts.core import _ensure_model
-_ensure_model('all-MiniLM-L6-v2')
-"
+## 分支管理
 
-# 使用国内镜像
-export HF_ENDPOINT=https://hf-mirror.com
-python scripts/run.py search test
-```
+- `main` — 稳定版本，始终可部署
+- `feature/xxx` — 功能开发分支
+- `fix/xxx` — Bug 修复分支
+- `docs/xxx` — 文档更新分支
 
-### FAISS 索引损坏
+## 问题反馈
 
-```bash
-# 备份旧索引，重建
-cp ~/.qclaw/data/semantic-memory/memories/index.faiss ~/index.faiss.bak
-python scripts/run.py clear --confirm
-# 重新导入
-```
+提交 Issue 时，请包含：
 
-### 内存不足
+- **环境信息**：Python 版本、操作系统、Docker 版本（如适用）
+- **复现步骤**：最小可复现代码
+- **期望行为 vs 实际行为**
+- **完整错误信息**（含 Traceback）
 
-```bash
-# 减少 IVF nprobe（加速但降低精度）
-python scripts/run.py config set search_top_k 3
-```
+## 代码审查要点
 
-## 联系方式
+Reviewers 关注：
 
-- GitHub Issues: https://github.com/zhan1206/semantic-memory/issues
-- 欢迎提交 PR，默认合并策略为 squash merge
+- [ ] 功能正确性
+- [ ] 测试覆盖率（新增代码有对应测试）
+- [ ] 文档完整性（README / docstring）
+- [ ] 性能影响（大规模数据测试）
+- [ ] 安全影响（敏感信息处理）
+- [ ] 向后兼容性（不破坏现有 API）
+
+---
+
+**一起让 Semantic Memory 变得更好！** 🚀
