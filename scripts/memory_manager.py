@@ -707,11 +707,91 @@ class MemoryManager:
         return chunks
 
 
+    # ─── 批量操作 ─────────────────────────────────────────
+
+    def batch_add(
+        self,
+        items: list[dict | tuple],
+        tags: list[str] | None = None,
+        importance: float | None = None,
+        progress: bool = False,
+    ) -> dict:
+        """
+        批量添加多条记忆
+
+        Args:
+            items: 支持两种格式：
+                   - dict: {"text": str, "tags": list, "importance": float}
+                   - tuple: (text, tags, importance) 三元组
+            tags: 每条记忆的默认标签（覆盖 dict 中的 tags）
+            importance: 每条记忆的默认重要性（覆盖 dict 中的 importance）
+            progress: 是否显示进度
+
+        Returns:
+            {"added": [id1, id2, ...], "failed": [{"item": ..., "error": "..."}],
+             "total": N, "success": M}
+        """
+        results = {"added": [], "failed": [], "total": len(items), "success": 0}
+        for i, item in enumerate(items):
+            if progress and i % 10 == 0:
+                logger.info(f"批量添加进度: {i}/{len(items)}")
+
+            try:
+                if isinstance(item, dict):
+                    text = item["text"]
+                    item_tags = tags if tags is not None else item.get("tags")
+                    item_imp = importance if importance is not None else item.get("importance")
+                else:
+                    text, item_tags, item_imp = item
+                    item_tags = tags if tags is not None else item_tags
+                    item_imp = importance if importance is not None else item_imp
+
+                mid = self.add(text, tags=item_tags, importance=item_imp)
+                results["added"].append(mid)
+                results["success"] += 1
+            except Exception as e:
+                results["failed"].append({"item": str(item)[:100], "error": str(e)})
+
+        if progress:
+            logger.info(f"批量添加完成: 成功 {results['success']}/{results['total']}")
+        return results
+
+    def batch_search(
+        self,
+        queries: list[str],
+        top_k: int = 5,
+        n_results: int = 10,
+    ) -> dict[int, list[dict]]:
+        """
+        批量搜索多条查询
+
+        Args:
+            queries: 查询列表
+            top_k: 每条查询返回的最相关记忆数
+            n_results: 总体返回数量上限
+
+        Returns:
+            {query_index: [results...], ...}
+        """
+        return {
+            i: self.search(q, top_k=top_k, n_results=n_results)
+            for i, q in enumerate(queries)
+        }
+
+
 if __name__ == "__main__":
     mgr = MemoryManager()
-    mid = mgr.add("测试记忆：今天和张三讨论了 AI 项目", tags=["工作", "重要"], importance=0.8)
-    print(f"Added memory: {mid}")
 
-    results = mgr.search("张三讨论了什么")
-    for r in results:
-        print(f"  [{r['score']:.4f}] {r['text'][:60]}... tags={r['tags']}")
+    # 批量添加示例
+    batch = [
+        {"text": "今天和李四讨论了项目计划", "tags": ["工作"], "importance": 0.8},
+        {"text": "AI 助手可以帮助写代码和文档", "tags": ["技术"], "importance": 0.7},
+        {"text": "下周要去北京出差", "tags": ["出差"], "importance": 0.9},
+    ]
+    result = mgr.batch_add(batch, progress=True)
+    print(f"批量添加结果: 成功 {result['success']}/{result['total']}")
+
+    # 批量搜索示例
+    search_results = mgr.batch_search(["项目计划", "出差安排"])
+    for idx, results in search_results.items():
+        print(f"\n查询 {idx}: 找到 {len(results)} 条")

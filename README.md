@@ -501,7 +501,7 @@ PARSERS[".odt"] = _parse_odt  # 添加 ODT 支持
 - [ ] `test_core.py` — ONNX 引擎单元测试（需要 mock ONNX Runtime）
 - [ ] 通用重试机制 — API 调用和记忆操作添加 `@retry` 装饰器
 - [ ] Streamlit Web UI — 完整可视化界面（进行中）
-- [ ] 文档截图/视频 — README 中的截图和演示视频
+- [x] 文档截图 — ✅ README 截图已完成（见上方演示图）；视频演示待录制
 - [ ] PDF 表格智能解析 — 复杂 PDF 表格结构识别
 - [ ] GitHub Actions CI Token — 需要无 Token 方式配置（可用 `GITHUB_TOKEN`）
 
