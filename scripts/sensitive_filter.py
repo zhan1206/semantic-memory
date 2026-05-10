@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Semantic Memory — 敏感信息过滤器
 自动识别并脱敏 API 密钥、密码、身份证号、银行卡号等敏感数据
 """
+from __future__ import annotations
+
 import re
 
 # ─── 敏感信息正则模式 ──────────────────────────────────────
