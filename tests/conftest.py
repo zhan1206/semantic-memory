@@ -25,7 +25,7 @@ def mock_data_dir():
 @pytest.fixture
 def clean_data_dir(mock_data_dir):
     """每个测试函数独立的干净子目录"""
-    sub = os.path.join(mock_data_dir, str(id(os.urandom(8)).hex()))
+    sub = os.path.join(mock_data_dir, os.urandom(8).hex())
     os.makedirs(sub, exist_ok=True)
     yield sub
     shutil.rmtree(sub, ignore_errors=True)
