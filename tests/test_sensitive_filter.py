@@ -55,7 +55,8 @@ class TestSanitize:
     def test_private_key_marker(self):
         text = "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQE...\n-----END RSA PRIVATE KEY-----"
         result = sanitize(text)
-        assert "PRIVATE KEY" not in result
+        # The regex replaces only the BEGIN marker line with [REDACTED_PRIVATE_KEY]
+        assert "[REDACTED_PRIVATE_KEY]" in result
 
     def test_normal_text_unchanged(self):
         text = "今天讨论了项目计划，明天继续开会沟通。"

@@ -79,6 +79,17 @@ def should_store(text: str) -> tuple[bool, str]:
     if not text or len(text.strip()) < 5:
         return False, "text_too_short"
 
+    # 检测是否是纯敏感信息（只有 API Key/密码，没有其他内容）
+    stripped = text.strip()
+    # 如果整个文本几乎就是一个敏感模式匹配，直接拒绝
+    for pattern, _ in SENSITIVE_PATTERNS:
+        match = pattern.search(stripped)
+        if match:
+            # 检查匹配是否覆盖了大部分文本
+            matched_len = match.end() - match.start()
+            if matched_len / len(stripped) > 0.7:
+                return False, "mostly_sensitive"
+
     # 检测是否几乎全是敏感信息（如纯密钥）
     sanitized = sanitize(text)
     original_len = len(text)

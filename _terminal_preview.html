@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1e1e2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  }
+  .window {
+    width: 860px;
+    background: #1a1a2e;
+    border-radius: 12px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+    overflow: hidden;
+  }
+  .titlebar {
+    background: #16161e;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #2a2a3e;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #ffbd2e; }
+  .dot.green { background: #28c840; }
+  .title {
+    margin-left: 12px;
+    color: #6b7280;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  .toolbar {
+    margin-left: auto;
+    background: #1e1e2e;
+    border: 1px solid #2a2a3e;
+    border-radius: 6px;
+    padding: 3px 12px;
+    color: #4b5563;
+    font-size: 12px;
+  }
+  .body {
+    padding: 20px 24px;
+    height: 440px;
+    overflow: hidden;
+  }
+  .section {
+    margin-bottom: 18px;
+  }
+  .label {
+    color: #7c3aed;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .cmd {
+    color: #e2e8f0;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .prompt { color: #10b981; }
+  .cmd-text { color: #e2e8f0; }
+  .comment { color: #6b7280; font-style: italic; }
+  .output { color: #9ca3af; font-size: 12.5px; line-height: 1.65; padding-left: 2px; }
+  .output .tag { color: #60a5fa; }
+  .output .imp { color: #fbbf24; }
+  .output .score { color: #34d399; }
+  .output .sep { color: #374151; }
+  .bar { color: #10b981; font-size: 12px; }
+  .error { color: #f87171; font-size: 12.5px; }
+  .success { color: #34d399; font-size: 12px; }
+  .hr { border: none; border-top: 1px solid #2a2a3e; margin: 14px 0; }
+  .tag-row { display: flex; gap: 6px; margin-top: 3px; }
+  .tag-badge {
+    background: #1e3a5f;
+    color: #60a5fa;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 4px;
+  }
+  .tag-badge.imp { background: #3d2e00; color: #fbbf24; }
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="titlebar">
+    <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+    <span class="title">semantic-memory — bash</span>
+    <div class="toolbar">Semantic Memory v1.0</div>
+  </div>
+  <div class="body">
+
+    <div class="section">
+      <div class="label">// 添加记忆</div>
+      <div class="cmd">
+        <span class="prompt">~/semantic-memory</span> <span class="cmd-text">$ smemory add "和张三讨论了AI项目计划，确定了v2.0的技术架构方案" \</span>
+      </div>
+      <div class="cmd" style="padding-left:24px">
+        <span class="prompt">...</span> <span class="cmd-text">--tags 工作,架构 --importance 0.9</span>
+      </div>
+      <div class="output" style="margin-top:4px">
+        <span class="success">✓ 记忆已添加</span>  <span class="sep">|</span>  ID: <span class="tag">mem_a3f9</span>  <span class="sep">|</span>  chunks: 2  <span class="sep">|</span>  耗时: 142ms
+      </div>
+    </div>
+
+    <hr class="hr">
+
+    <div class="section">
+      <div class="label">// 批量导入文档</div>
+      <div class="cmd">
+        <span class="prompt">~/semantic-memory</span> <span class="cmd-text">$ smemory kb import ./docs/ai_architecture.pdf</span>
+      </div>
+      <div class="output" style="margin-top:4px">
+        <span class="success">✓ 文档已解析</span>  <span class="sep">|</span>  页数: 24  <span class="sep">|</span>  提取文本: 8.2 KB  <span class="sep">|</span>  表格: 3  <span class="sep">|</span>  耗时: 1.3s
+      </div>
+      <div class="output" style="margin-top:3px">
+        <span class="comment"># 表格结构已提取为独立段落，完整保留行列关系</span>
+      </div>
+    </div>
+
+    <hr class="hr">
+
+    <div class="section">
+      <div class="label">// 语义搜索</div>
+      <div class="cmd">
+        <span class="prompt">~/semantic-memory</span> <span class="cmd-text">$ smemory search "v2.0架构方案是什么"</span>
+      </div>
+      <div class="output" style="margin-top:5px">
+        <div class="bar">mem_a3f9  <span class="sep">━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="score">0.9421</span></div>
+        <div class="output" style="margin-left:4px">和张三讨论了AI项目计划，确定了<span class="imp">v2.0的技术架构</span>方案</div>
+        <div class="tag-row">
+          <span class="tag-badge">工作</span>
+          <span class="tag-badge">架构</span>
+          <span class="tag-badge imp">重要性: 0.9</span>
+        </div>
+      </div>
+      <div class="output" style="margin-top:7px">
+        <div class="bar">mem_7c2d  <span class="sep">━━━━━━━━━━━━━━━━━━━━</span> <span class="score">0.8914</span></div>
+        <div class="output" style="margin-left:4px">架构组确认采用微内核+插件模式，v2.0将支持热更新...</div>
+        <div class="tag-row">
+          <span class="tag-badge">架构</span>
+          <span class="tag-badge">v2.0</span>
+        </div>
+      </div>
+      <div class="output" style="margin-top:7px">
+        <div class="bar">doc_pdf1 <span class="sep">━━━━━━━━━━━━━━━━━━━</span> <span class="score">0.8677</span></div>
+        <div class="output" style="margin-left:4px">第三章：技术架构设计 — 包含微内核架构、插件系统、API网关...</div>
+        <div class="tag-row">
+          <span class="tag-badge">知识库</span>
+          <span class="tag-badge">PDF</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

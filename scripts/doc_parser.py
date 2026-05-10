@@ -362,7 +362,7 @@ def _parse_docx(file_path: str) -> str:
     return f"[来源: {os.path.basename(file_path)}]\n" + combined
 
 
-def _docx_table_to_markdown(doc: Document, table_element) -> str | None:
+def _docx_table_to_markdown(doc, table_element) -> str | None:
     """将 DOCX table 元素转为 Markdown"""
     try:
         from docx.table import Table
