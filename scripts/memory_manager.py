@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from __future__ import annotations
 Semantic Memory — 记忆管理器
 长期记忆 CRUD + 重要性/时间衰减 + 跨会话知识库 + 去重 + 性能监控
 """
