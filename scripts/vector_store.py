@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-from __future__ import annotations
 Semantic Memory — FAISS 向量存储引擎
 嵌入式本地向量数据库，支持增量更新、IVF 索引、毫秒级检索
 """
+from __future__ import annotations
 import os
 import sys
 import json
