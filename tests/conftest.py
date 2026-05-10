@@ -95,6 +95,8 @@ def mock_encoder():
             return np.vstack(vectors).astype(np.float32) if len(vectors) > 1 else np.array([vectors[0]], dtype=np.float32)
 
         def encode_single(self, text):
-            return self.encode(text)
+            # Return 1D array for single text
+            result = self.encode(text)
+            return result[0] if result.ndim == 2 else result
 
     return MockEncoder()
