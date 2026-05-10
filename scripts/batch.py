@@ -14,7 +14,7 @@ SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(SKILL_DIR, "scripts"))
 
 from memory_manager import MemoryManager
-from logging import get_logger, progress_bar
+from app_logging import get_logger, progress_bar
 
 logger = get_logger("batch")
 

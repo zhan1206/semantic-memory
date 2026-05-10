@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(SKILL_DIR, "scripts"))
 
 from memory_manager import MemoryManager
 from config import load_config, get_config, set_config
-from logging import CLIOutput as out
+from app_logging import CLIOutput as out
 
 
 def _banner():

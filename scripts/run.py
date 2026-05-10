@@ -37,7 +37,7 @@ import argparse
 
 # ─── 彩色输出（内联，无依赖） ───────────────────────────────
 try:
-    from logging import CLIOutput as _out
+    from app_logging import CLIOutput as _out
     _USE_LOGGING = True
 except ImportError:
     _USE_LOGGING = False
