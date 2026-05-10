@@ -64,7 +64,7 @@ class TestMemoryManagerCRUD:
         assert any("Python" in t or "JavaScript" in t for t in texts)
 
     def test_tag(self, mgr):
-        mid = mgr.add("记忆内容")
+        mid = mgr.add("这是一条测试记忆内容")
         ok = mgr.tag(mid, ["重要", "工作"])
         assert ok is True
 
@@ -73,34 +73,34 @@ class TestMemoryManagerCRUD:
         assert "工作" in m["tags"]
 
     def test_set_importance(self, mgr):
-        mid = mgr.add("内容")
+        mid = mgr.add("这是测试内容")
         mgr.set_importance(mid, 0.9)
         m = mgr.get(mid)
         assert m["importance"] == 0.9
 
     def test_edit(self, mgr):
-        mid = mgr.add("原始内容")
+        mid = mgr.add("原始内容的测试")
         ok = mgr.edit(mid, "修改后的内容")
         assert ok is True
         m = mgr.get(mid)
         assert m["text"] == "修改后的内容"
 
     def test_delete(self, mgr):
-        mid = mgr.add("待删除记忆")
+        mid = mgr.add("待删除的测试记忆")
         ok = mgr.delete(mid)
         assert ok is True
         assert mgr.get(mid) is None
 
     def test_list_memories(self, mgr):
         for i in range(10):
-            mgr.add(f"记忆 {i}")
+            mgr.add(f"这是第 {i} 条测试记忆")
         items = mgr.list_memories(limit=5)
         assert len(items) == 5
 
     def test_stats(self, mgr):
-        mgr.add("内容 A", tags=["a"])
-        mgr.add("内容 B", tags=["b"])
-        mgr.add("内容 C", tags=["a"])
+        mgr.add("这是测试内容 A", tags=["a"])
+        mgr.add("这是测试内容 B", tags=["b"])
+        mgr.add("这是测试内容 C", tags=["a"])
         stats = mgr.stats()
         assert stats["total_memories"] == 3
         assert stats["by_tag"]["a"] == 2
