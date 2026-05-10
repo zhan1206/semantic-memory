@@ -4,6 +4,7 @@ Semantic Memory — FastAPI REST API 服务
 提供 HTTP 接口访问语义记忆系统
 启动: python api_server.py [--host 0.0.0.0] [--port 8765] [--reload]
 """
+from __future__ import annotations
 import os
 import sys
 import argparse

@@ -3,6 +3,7 @@
 Semantic Memory — 用户配置管理
 支持 JSON 配置文件，可自定义分块大小、衰减参数、模型选择等
 """
+from __future__ import annotations
 import os
 import json
 

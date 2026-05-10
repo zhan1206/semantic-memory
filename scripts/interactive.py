@@ -3,6 +3,7 @@
 Semantic Memory — 交互式 CLI 模式
 提供交互式菜单界面，适合不想记命令的用户
 """
+from __future__ import annotations
 import os
 import sys
 

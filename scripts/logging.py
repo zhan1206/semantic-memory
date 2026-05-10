@@ -4,6 +4,7 @@ Semantic Memory — 统一日志模块
 替换所有模块中的 print() 分散日志，实现集中管理
 支持文件日志 + 控制台彩色输出 + 日志轮转
 """
+from __future__ import annotations
 import os
 import sys
 import logging

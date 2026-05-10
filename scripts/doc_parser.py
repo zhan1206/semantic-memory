@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""
+# -*- coding: utf-8 -*-
 from __future__ import annotations
+"""
 Semantic Memory — 文档解析器 v2
 支持 PDF / TXT / Markdown / DOCX / XLSX / PPTX 自动解析、分块、表格检测
 

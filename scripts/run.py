@@ -29,6 +29,7 @@ Semantic Memory — CLI 入口
   python run.py metrics
   python run.py --interactive        # 交互式菜单模式
 """
+from __future__ import annotations
 import sys
 import os
 import json

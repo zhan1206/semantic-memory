@@ -3,6 +3,7 @@
 Semantic Memory — ONNX Embedding 引擎
 内置量化小模型，CPU 极速推理，自动下载模型+分词器
 """
+from __future__ import annotations
 import os
 import sys
 import json
