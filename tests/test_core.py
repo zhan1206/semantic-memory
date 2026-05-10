@@ -68,15 +68,18 @@ class TestAutoEncode:
     def test_auto_encode_pure_english(self, mock_encoder):
         from core import auto_encode
         vec = auto_encode("Hello world", engine_map={"en": mock_encoder})
-        assert vec.shape == (1, mock_encoder.dimension)
-        assert np.isclose(np.linalg.norm(vec), 1.0, atol=1e-3)
+        # auto_encode returns raw encode() output which is (N, dim)
+        assert vec.shape[0] == 1
+        assert vec.shape[1] == mock_encoder.dimension
+        assert np.isclose(np.linalg.norm(vec[0]), 1.0, atol=1e-3)
 
     def test_auto_encode_pure_chinese(self, mock_encoder):
-        from core import _detect_chinese_ratio
         # 只有在中文占比>30%且有zh引擎时才用中文引擎
         # 纯中文文本会触发zh引擎
+        from core import auto_encode
         vec = auto_encode("你好世界", engine_map={"zh": mock_encoder, "en": mock_encoder})
-        assert vec.shape == (1, mock_encoder.dimension)
+        assert vec.shape[0] == 1
+        assert vec.shape[1] == mock_encoder.dimension
 
     def test_auto_encode_batch(self, mock_encoder):
         from core import auto_encode
@@ -87,7 +90,8 @@ class TestAutoEncode:
     def test_auto_encode_single_string(self, mock_encoder):
         from core import auto_encode
         vec = auto_encode("single text", engine_map={"en": mock_encoder})
-        # 返回 2D 但 shape[0] 应该是 1
+        # encode() returns (N, dim) for list input
+        assert vec.ndim == 2
         assert vec.shape[0] == 1
         assert vec.shape[1] == mock_encoder.dimension
 
